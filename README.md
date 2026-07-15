@@ -214,6 +214,52 @@ Refer to your specific client's documentation for the appropriate configuration 
 
 </details>
 
+## Transport Modes
+
+The server supports two MCP transport modes, selected via the `MCP_TRANSPORT` environment variable.
+
+### stdio (default)
+
+The default mode. The MCP client launches the server as a subprocess and communicates over stdin/stdout. Use this for Claude Desktop, Cursor, and most MCP clients.
+
+```json
+{
+  "mcpServers": {
+    "mcp-mail-server": {
+      "command": "npx",
+      "args": ["-y", "mcp-mail-server"],
+      "env": {
+        "MCP_TRANSPORT": "stdio",
+        "IMAP_HOST": "...",
+        "..."
+      }
+    }
+  }
+}
+```
+
+### Streamable HTTP
+
+In this mode the server listens on an HTTP port and accepts MCP Streamable HTTP connections. This is useful when deploying the server as a standalone process or container that multiple clients can connect to simultaneously.
+
+Start the server:
+
+```bash
+MCP_TRANSPORT=streamable-http \
+MCP_PORT=3000 \
+IMAP_HOST=imap.example.com \
+IMAP_PORT=993 \
+IMAP_SECURE=true \
+SMTP_HOST=smtp.example.com \
+SMTP_PORT=465 \
+SMTP_SECURE=true \
+EMAIL_USER=you@example.com \
+EMAIL_PASS=your-password \
+npx mcp-mail-server
+```
+
+The server will listen on `http://localhost:3000` (or the port set by `MCP_PORT`). Connect your MCP client to that URL using its Streamable HTTP configuration.
+
 ## Available Tools
 
 | Tool | Description |
@@ -332,7 +378,12 @@ Use natural language commands with your AI assistant:
 | `SMTP_SECURE` | Enable SSL | `true` |
 | `EMAIL_USER` | Email username | `your-email@gmail.com` |
 | `EMAIL_PASS` | Email password/app password | `your-app-password` |
+<<<<<<< HEAD
 | `RECIPIENT_WHITELIST` | *(Optional)* Comma-separated list of allowed recipient addresses. When set, `send_email` and `reply_to_email` will reject any message whose `to` or `cc` fields contain an address not on this list. Leave unset (or empty) to allow any recipient. | `alice@example.com,bob@example.com` |
+=======
+| `MCP_TRANSPORT` | Transport mode: `stdio` (default) or `streamable-http` | `stdio` |
+| `MCP_PORT` | HTTP port when using `streamable-http` transport (default: `3000`) | `3000` |
+>>>>>>> origin/main
 
 ### Common Email Providers
 
