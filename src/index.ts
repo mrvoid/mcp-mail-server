@@ -114,6 +114,25 @@ class MailMCPServer {
     return `${context}: ${error instanceof Error ? error.message : String(error)}`;
   }
 
+  private checkRecipientsAgainstWhitelist(to: string | string[], cc?: string | string[]): void {
+    const whitelist = EMAIL_CONFIG.RECIPIENT_WHITELIST;
+    if (whitelist.length === 0) {
+      return; // 白名单为空，不限制收件人
+    }
+
+    const toList = Array.isArray(to) ? to : [to];
+    const ccList = cc ? (Array.isArray(cc) ? cc : [cc]) : [];
+    const allRecipients = [...toList, ...ccList].map(addr => addr.trim().toLowerCase());
+
+    const blocked = allRecipients.filter(addr => !whitelist.includes(addr));
+
+    if (blocked.length > 0) {
+      throw new Error(
+        `The following recipients are not on the whitelist and cannot receive emails: ${blocked.join(', ')}`
+      );
+    }
+  }
+
   // 检测是否为仅日期格式（没有时间部分）
   private isDateOnly(dateString: string): boolean {
     // 匹配仅日期格式，如 "2025-08-19", "01-Jan-2025" 等
@@ -1951,7 +1970,7 @@ class MailMCPServer {
       throw new Error('Either text or html content is required');
     }
 
-    // 处理附件
+    this.checkRecipientsAgainstWhitelist(emailOptions.to, emailOptions.cc);
     if (args.attachments && args.attachments.length > 0) {
       const attachmentList: Array<{ filename: string; content: Buffer; contentType?: string }> = [];
       for (const filePath of args.attachments) {
@@ -2084,6 +2103,7 @@ class MailMCPServer {
 
       // 发送回复邮件
       console.error(`[Reply] Sending reply to: ${toRecipients.join(', ')}${ccRecipients.length > 0 ? ` (CC: ${ccRecipients.join(', ')})` : ''}`);
+      this.checkRecipientsAgainstWhitelist(toRecipients, ccRecipients.length > 0 ? ccRecipients : undefined);
       const result = await this.smtpClient!.sendMail(emailOptions);
       
       // 尝试保存已发送的回复邮件到发件箱

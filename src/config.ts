@@ -32,6 +32,14 @@ function getRequiredNumberEnvVar(name: string): number {
   return num;
 }
 
+function getRecipientWhitelist(): string[] {
+  const value = process.env['RECIPIENT_WHITELIST'];
+  if (!value || value.trim() === '') {
+    return [];
+  }
+  return value.split(',').map(email => email.trim().toLowerCase()).filter(email => email.length > 0);
+}
+
 export const EMAIL_CONFIG = {
   // IMAP配置（接收邮件）
   IMAP: {
@@ -49,5 +57,8 @@ export const EMAIL_CONFIG = {
     username: getRequiredEnvVar('EMAIL_USER'),
     password: getRequiredEnvVar('EMAIL_PASS'),
     secure: getRequiredBooleanEnvVar('SMTP_SECURE')
-  }
+  },
+
+  // 收件人白名单（可选）：仅允许向列表中的地址发送邮件
+  RECIPIENT_WHITELIST: getRecipientWhitelist()
 };
