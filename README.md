@@ -378,12 +378,9 @@ Use natural language commands with your AI assistant:
 | `SMTP_SECURE` | Enable SSL | `true` |
 | `EMAIL_USER` | Email username | `your-email@gmail.com` |
 | `EMAIL_PASS` | Email password/app password | `your-app-password` |
-<<<<<<< HEAD
 | `RECIPIENT_WHITELIST` | *(Optional)* Comma-separated list of allowed recipient addresses. When set, `send_email` and `reply_to_email` will reject any message whose `to` or `cc` fields contain an address not on this list. Leave unset (or empty) to allow any recipient. | `alice@example.com,bob@example.com` |
-=======
 | `MCP_TRANSPORT` | Transport mode: `stdio` (default) or `streamable-http` | `stdio` |
 | `MCP_PORT` | HTTP port when using `streamable-http` transport (default: `3000`) | `3000` |
->>>>>>> origin/main
 
 ### Common Email Providers
 
