@@ -119,11 +119,9 @@ class MailMCPServer {
 
     const toList = Array.isArray(to) ? to : [to];
     const ccList = cc ? (Array.isArray(cc) ? cc : [cc]) : [];
-    const allRecipients = [...toList, ...ccList];
+    const allRecipients = [...toList, ...ccList].map(addr => addr.trim().toLowerCase());
 
-    const blocked = allRecipients.filter(
-      addr => !whitelist.includes(addr.trim().toLowerCase())
-    );
+    const blocked = allRecipients.filter(addr => !whitelist.includes(addr));
 
     if (blocked.length > 0) {
       throw new Error(
