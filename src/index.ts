@@ -1,10 +1,13 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
+import { createServer } from 'http';
+import { randomUUID } from 'crypto';
 import { writeFile, readFile, mkdir, access } from 'fs/promises';
 import path from 'path';
 import { IMAPClient, IMAPConfig, EmailMessage, AttachmentMeta, AttachmentData } from './imap-client.js';
@@ -2569,9 +2572,31 @@ class MailMCPServer {
   }
 
   async run(): Promise<void> {
-    const transport = new StdioServerTransport();
-    await this.server.connect(transport);
-    console.error('MCP Mail server running on stdio');
+    const transportMode = process.env.MCP_TRANSPORT ?? 'stdio';
+
+    if (transportMode === 'streamable-http') {
+      const rawPort = process.env.MCP_PORT ?? '3000';
+      const port = parseInt(rawPort, 10);
+      if (isNaN(port) || port < 1 || port > 65535) {
+        throw new Error(`Invalid MCP_PORT value: "${rawPort}". Must be a number between 1 and 65535.`);
+      }
+      const transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: () => randomUUID(),
+      });
+
+      const httpServer = createServer((req, res) => {
+        transport.handleRequest(req, res);
+      });
+
+      await this.server.connect(transport);
+      httpServer.listen(port, () => {
+        console.error(`MCP Mail server running on Streamable HTTP at port ${port}`);
+      });
+    } else {
+      const transport = new StdioServerTransport();
+      await this.server.connect(transport);
+      console.error('MCP Mail server running on stdio');
+    }
   }
 }
 
