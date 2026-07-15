@@ -2575,7 +2575,11 @@ class MailMCPServer {
     const transportMode = process.env.MCP_TRANSPORT ?? 'stdio';
 
     if (transportMode === 'streamable-http') {
-      const port = parseInt(process.env.MCP_PORT ?? '3000', 10);
+      const rawPort = process.env.MCP_PORT ?? '3000';
+      const port = parseInt(rawPort, 10);
+      if (isNaN(port) || port < 1 || port > 65535) {
+        throw new Error(`Invalid MCP_PORT value: "${rawPort}". Must be a number between 1 and 65535.`);
+      }
       const transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => randomUUID(),
       });
