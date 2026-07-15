@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "dotenv": "^17.4.2",
     "imap": "^0.8.19",
     "mailparser": "^3.7.4",
     "nodemailer": "^6.9.0"

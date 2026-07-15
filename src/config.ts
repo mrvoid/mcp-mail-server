@@ -1,3 +1,8 @@
+import dotenv from 'dotenv';
+
+// Load .env from the current working directory if one exists
+dotenv.config();
+
 function getRequiredEnvVar(name: string, defaultValue?: string): string {
   const value = process.env[name];
   if (!value) {
