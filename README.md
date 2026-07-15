@@ -320,7 +320,7 @@ Use natural language commands with your AI assistant:
 
 ### Environment Variables
 
-**⚠️ All variables are required**
+**⚠️ All variables are required** unless noted as optional
 
 | Variable | Description | Example |
 |----------|-------------|---------|
@@ -332,6 +332,7 @@ Use natural language commands with your AI assistant:
 | `SMTP_SECURE` | Enable SSL | `true` |
 | `EMAIL_USER` | Email username | `your-email@gmail.com` |
 | `EMAIL_PASS` | Email password/app password | `your-app-password` |
+| `RECIPIENT_WHITELIST` | *(Optional)* Comma-separated list of allowed recipient addresses. When set, `send_email` and `reply_to_email` will reject any message whose `to` or `cc` fields contain an address not on this list. Leave unset (or empty) to allow any recipient. | `alice@example.com,bob@example.com` |
 
 ### Common Email Providers
 
